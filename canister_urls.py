@@ -15,7 +15,7 @@ def get_host():
 
 if __name__ == "__main__":
     root_path = path.dirname(path.realpath(__file__))
-    canister_id_file = f'{root_path}/.dfx/local/canister_ids.json';
+    canister_id_file = f'{root_path}/.dfx/local/canisters/canister_ids.json';
     if not path.exists(canister_id_file):
         print(f"Run 'dfx deploy' first.")
         exit(1)
@@ -23,23 +23,26 @@ if __name__ == "__main__":
         data = json.load(f)
         frontend_canisters = []
         backend_canisters = []
+    for key, value in data.items():
+        if key == '__Candid_UI':
+            candid_ui_canister_id = value['local']
+        elif 'frontend' in key:
+            frontend_canisters.append((key, value['local']))
+        else:
+            backend_canisters.append((key, value['local']))
 
-        for key, value in data.items():
-            if key == '__Candid_UI':
-                candid_ui_canister_id = value['local']
-            elif 'frontend' in key:
-                frontend_canisters.append((key, value['local']))
-            else:
-                backend_canisters.append((key, value['local']))
+    host = get_host()
 
-        host = get_host()
-        
-        print(f"{BOLD}URLs:{NORMAL}")
-        if frontend_canisters:
-            print(f"""{BOLD}  Frontend canister via browser{NORMAL}""")
-            for name, id in frontend_canisters:
-                print(f"{BOLD}    {name}: {GREEN}{host}/?canisterId={id}{NORMAL}")
-        if backend_canisters:
-            print(f"{BOLD}  Backend canister via Candid interface:")
-            for name, id in backend_canisters:
+    print(f"{BOLD}URLs:{NORMAL}")
+    if frontend_canisters:
+        print(f"{BOLD}  Frontend canister via browser{NORMAL}")
+        for name, id in frontend_canisters:
+            print(f"{BOLD}    {name}: {GREEN}{host}/?canisterId={id}{NORMAL}")
+    if backend_canisters:
+        print(f"{BOLD}  Backend canister via Candid interface:")
+        for name, id in backend_canisters:
+            # Ensure candid_ui_canister_id is defined before using it
+            if 'candid_ui_canister_id' in locals() or 'candid_ui_canister_id' in globals():
                 print(f"{BOLD}    {name}: {GREEN}{host}/?canisterId={candid_ui_canister_id}&id={id}{NORMAL}")
+            else:
+                print(f"Error: candid_ui_canister_id is not defined")

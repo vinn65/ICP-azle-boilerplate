@@ -60,7 +60,7 @@ export default Server(() => {
      } else {
         res.json(deletedMessage.Some);
      }
-
+    });
    return app.listen();
 });
 
