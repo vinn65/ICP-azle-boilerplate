@@ -10,3 +10,7 @@ class Message{
     createdAt: Date;
     updatedAt:string | null
 }
+
+const messageStorage = StableBTreeMap<string, Message>(0);
+
+
